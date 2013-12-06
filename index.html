@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>FONIS Loptice</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #404040;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+
+				background-color: #ffffff;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+			}
+
+			a {
+
+				color: #0080bb;
+			}
+		</style>
+	</head>
+	<body>
+		<div id="info"><a href="http://fonis.rs" target="_blank">Fonis</a> - Udruzenje studenata informatike</div>
+
+		<script src="./js/lib/three.min.js"></script>
+    <script src="./js/ball.js"></script>
+
+		<script>
+
+      var SHADOW_MAP_WIDTH = 4096, SHADOW_MAP_HEIGHT = 4096;
+
+			var container;
+
+			var camera, scene, light, renderer;
+
+      var plane;
+
+      var balls = [];
+
+      var time;
+
+			init();
+			animate();
+
+			function init() {
+
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+
+				scene = new THREE.Scene();
+        scene.fog = new THREE.FogExp2( 0xffffff, 0.02 );
+
+        camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 0.001, 1500 );
+				camera.position.z = 25;
+        camera.position.y = 2;
+
+        light = new THREE.DirectionalLight( 0xffffff );
+				light.position.set( 1,1,1 );
+
+        light.castShadow = true;
+
+        light.shadowCameraNear = 1;
+				light.shadowCameraFar = 200;
+				light.shadowCameraFov = 10;
+
+        light.shadowCameraLeft = -35;
+        light.shadowCameraRight = 35;
+        light.shadowCameraTop = 35;
+        light.shadowCameraBottom = -35;
+
+				//light.shadowCameraVisible = true;
+
+				light.shadowBias = 0.0001;
+				light.shadowDarkness = 0.5;
+
+				light.shadowMapWidth = SHADOW_MAP_WIDTH;
+				light.shadowMapHeight = SHADOW_MAP_HEIGHT;
+        
+				scene.add( light );
+
+				var planeGeo = new THREE.PlaneGeometry(100, 100, 100, 100);
+        var planeMat = new THREE.MeshLambertMaterial( { color: new THREE.Color( 0x999999) } );
+        plane = new THREE.Mesh( planeGeo, planeMat );
+        plane.castShadow = true;
+        plane.receiveShadow = true;
+        plane.rotation.x = -Math.PI/2;
+        scene.add(plane);
+
+        for(var i = 0; i<3; i++){
+          balls[i] = new Ball('images/fonisBall.jpg', Math.random()+1, Math.random()*12, Math.random()*3, Math.random()*9);
+          scene.add(balls[i].mesh);
+        }
+
+				renderer = new THREE.WebGLRenderer( { antialias: true } );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+        renderer.setClearColor( scene.fog.color, 1 );
+        renderer.shadowMapEnabled = true;
+				renderer.shadowMapSoft = true;
+
+        container.appendChild( renderer.domElement );
+
+
+			}
+  
+			function animate() {
+
+        time = new Date().getTime();
+
+				requestAnimationFrame( animate );
+
+        for(var i = 0; i<3; i++){
+          balls[i].update();
+        }
+
+				render();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
